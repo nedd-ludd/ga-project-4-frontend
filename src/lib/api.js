@@ -2,8 +2,8 @@ import axios from "axios";
 import { AUTH } from "./auth";
 
 const ENDPOINTS = {
-  // allBeers: "/api/crafty-beers",
-  // singleBeer: (id) => `/api/crafty-beers/${id}`,
+  allItems: "/api/items",
+  singleItem: (id) => `/api/items/${id}`,
   // allBreweries: "/api/breweries",
   // createReview: (id) => `/api/crafty-beers/${id}/reviews`,
   // singleReview: (beerId, reviewId) =>

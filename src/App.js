@@ -6,6 +6,8 @@ import Home from "./components/Home";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import Ours from "./components/Ours";
+import ItemsIndex from "./components/ItemsIndex";
+import Item from "./components/Item";
 
 // import "react-toastify/dist/ReactToastify.css";
 // import "./styles/App.css";
@@ -20,7 +22,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/ours" element={<Ours />} />
+        <Route path="/items/:id" element={<Item />} />
+        <Route path="/ours-dashboard" element={<Ours />} />
+        <Route path="/items" element={<ItemsIndex />} />
       </Routes>
       <ToastContainer />
     </Router>
