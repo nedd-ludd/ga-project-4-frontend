@@ -12,6 +12,13 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+import { API } from "../lib/api";
+import { AUTH } from "../lib/auth";
+import { NOTIFY } from "../lib/notifications";
+
 function Copyright(props) {
   return (
     <Typography
@@ -33,13 +40,70 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+  const navigate = useNavigate();
+  const [formFields, setFormFields] = useState({
+    first_name: "",
+    last_name: "",
+    username: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    profile_image: "https://i.imgur.com/CzmAXlp.jpg",
+  });
+
+  // const [file, setFile] = useState("");
+  const [error, setError] = useState(false);
+  const handleChange = (e) =>
+    setFormFields({ ...formFields, [e.target.name]: e.target.value });
+
+  // const handleFileChange = (e) => setFile(e.target.files[0]);
+
+  // !!this is old submit
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const data = new FormData(event.currentTarget);
+  //   console.log({
+  //     email: data.get("email"),
+  //     password: data.get("password"),
+  //   });
+  // };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    // const imageData = new FormData();
+    // imageData.append("file", file);
+    // imageData.append(
+    //   "upload_preset",
+    //   process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
+    // );
+
+    // try {
+    //   const cloudinaryResponse = await API.POST(
+    //     API.ENDPOINTS.cloudinary,
+    //     imageData
+    //   );
+
+    //   const apiReqBody = {
+    //     ...formFields,
+    //     cloudinaryImageId: cloudinaryResponse.data.public_id,
+    //   };
+
+    try {
+      await API.POST(API.ENDPOINTS.register, formFields);
+      // await API.POST(API.ENDPOINTS.register, apiReqBody);
+
+      const loginData = await API.POST(API.ENDPOINTS.login, {
+        email: formFields.email,
+        password: formFields.password,
+      });
+
+      AUTH.setToken(loginData.data.token);
+      NOTIFY.SUCCESS(loginData.data.message);
+      navigate("/ours");
+    } catch (e) {
+      console.log(e);
+      setError(true);
+    }
   };
 
   return (
@@ -63,29 +127,48 @@ export default function SignUp() {
           <Box
             component="form"
             noValidate
-            onSubmit={handleSubmit}
+            onSubmit={handleCreateUser}
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
-                  name="firstName"
+                  name="first_name"
                   required
                   fullWidth
-                  id="firstName"
+                  id="first_name"
                   label="First Name"
                   autoFocus
+                  value={formFields.first_name}
+                  onChange={handleChange}
+                  error={error}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
                   fullWidth
-                  id="lastName"
+                  id="last_name"
                   label="Last Name"
-                  name="lastName"
+                  name="last_name"
                   autoComplete="family-name"
+                  value={formFields.last_name}
+                  onChange={handleChange}
+                  error={error}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  value={formFields.username}
+                  onChange={handleChange}
+                  error={error}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -96,6 +179,9 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  value={formFields.email}
+                  onChange={handleChange}
+                  error={error}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -107,6 +193,23 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  value={formFields.password}
+                  onChange={handleChange}
+                  error={error}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password_confirmation"
+                  label="Password Confirmation"
+                  type="password"
+                  id="password_confirmation"
+                  autoComplete="confirm-password"
+                  error={error}
+                  value={formFields.password_confirmation}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>

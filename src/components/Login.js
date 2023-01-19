@@ -14,6 +14,11 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+import { API } from "../lib/api";
+import { NOTIFY } from "../lib/notifications";
+import { AUTH } from "../lib/auth";
+import { useAuthenticated } from "../hooks/useAuthenticated";
+
 function Copyright(props) {
   return (
     <Typography
@@ -40,19 +45,33 @@ export default function SignIn() {
     email: "",
     password: "",
   });
-  // const [error, setError] = useState(false);
+  const [error, setError] = useState(false);
   const [isLoggedIn] = useAuthenticated();
   if (isLoggedIn) {
     navigate("/");
   }
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const data = new FormData(event.currentTarget);
+  //   console.log({
+  //     email: data.get("email"),
+  //     password: data.get("password"),
+  //   });
+  // };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    API.POST(API.ENDPOINTS.login, formFields)
+      .then(({ data }) => {
+        NOTIFY.SUCCESS(data.message);
+        AUTH.setToken(data.token);
+        navigate("/ours");
+      })
+      .catch((e) => {
+        console.log(e);
+        setError(true);
+      });
   };
 
   const handleChange = (e) => {
@@ -92,6 +111,7 @@ export default function SignIn() {
               name="email"
               autoComplete="email"
               autoFocus
+              error={error}
               onChange={handleChange}
             />
             <TextField
@@ -104,6 +124,7 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
               onChange={handleChange}
+              error={error}
             />
             {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
