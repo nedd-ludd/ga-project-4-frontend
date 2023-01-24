@@ -4,19 +4,34 @@ import Button from "@mui/material/Button";
 import SelectCatagory from "./common/SelectField.js";
 import "../styles/itemSearch.scss";
 
-export default function ItemSearchBar() {
+export default function ItemSearchBar({
+  setCategory,
+  handleSearch,
+  searchText,
+  setSearchText,
+}) {
+  const handleChange = (e) => {
+    setSearchText(e.target.value);
+  };
   return (
     <div className="search-bar">
+      <SelectCatagory setCategory={setCategory}></SelectCatagory>
       <Box
         sx={{
           width: 500,
           maxWidth: "100%",
         }}
       >
-        <TextField fullWidth label="Search items" id="fullWidth" />
+        <TextField
+          fullWidth
+          size="large"
+          type="text"
+          value={searchText}
+          onChange={handleChange}
+          label="Search items"
+        />
       </Box>
-      <SelectCatagory></SelectCatagory>
-      <Button>Search</Button>
+      <Button onClick={handleSearch}>Search</Button>
     </div>
   );
 }

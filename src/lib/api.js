@@ -2,15 +2,19 @@ import axios from "axios";
 import { AUTH } from "./auth";
 
 const ENDPOINTS = {
-  allItems: "/api/items",
-  singleItem: (id) => `/api/items/${id}`,
-  // allBreweries: "/api/breweries",
+  allItems: "/api/items/",
+  singleItem: (id) => `/api/items/${id}/`,
+  allPeople: "/api/users/",
+  singlePerson: (id) => `/api/users/${id}/`,
+  allCategories: "/api/categories/",
+  itemSearch: (query) => `/api/items/search/?search=${query}`,
+  itemsPull: (user) => `/api/items/search-user-items/?search=${user}`,
   // createReview: (id) => `/api/crafty-beers/${id}/reviews`,
   // singleReview: (beerId, reviewId) =>
   //   `/api/crafty-beers/${beerId}/reviews/${reviewId}`,
   login: "/api/auth/login/",
   register: "/api/auth/register/",
-  // cloudinary: `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
+  cloudinary: `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
 };
 
 const getHeaders = () => ({

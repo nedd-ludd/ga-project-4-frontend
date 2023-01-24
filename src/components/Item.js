@@ -1,42 +1,92 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { API } from "../lib/api";
-// import BeerRatings from "./common/BeerRatings";
-// import ReviewCard from "./common/ReviewCard";
-// import { useAuthenticated } from "../hooks/useAuthenticated";
-// import { AUTH } from "../lib/auth";
+import { AUTH } from "../lib/auth";
+import "../styles/item.scss";
 
-// import {
-//   Container,
-//   Box,
-//   CardActions,
-//   CardContent,
-//   Button,
-//   Typography,
-// } from "@mui/material";
+import {
+  Container,
+  Box,
+  CardActions,
+  CardContent,
+  Button,
+  Typography,
+} from "@mui/material";
 
 const Item = () => {
-  // // const [isLoggedIn] = useAuthenticated();
-  // // const navigate = useNavigate();
   const { id } = useParams();
   const [singleItem, setSingleItem] = useState(null);
-  // const [isUpdated, setIsUpdated] = useState(false);
-  // console.log(id);
+  const [isOwn, setIsOwn] = useState(false);
+  const navigate = useNavigate();
+
+  const navTo = (e) => {
+    if (e.target.value === "owner") {
+      navigate(`/edit-item/${id}`);
+    } else {
+      navigate(`/people/${singleItem.categories[0].name}`);
+    }
+  };
+
+  useEffect(() => {
+    if (AUTH.isOwner()) {
+      setIsOwn(true);
+    }
+  }, [singleItem]);
 
   useEffect(() => {
     API.GET(API.ENDPOINTS.singleItem(id))
       .then(({ data }) => {
         setSingleItem(data);
-        console.log(data);
+        setIsOwn(data.owner == AUTH.getPayload().sub);
       })
       .catch(({ message, response }) => {
         console.error(message, response);
       });
-    // setIsUpdated(false);
   }, []);
-  // }, [id, isUpdated]);
 
-  return <h1>this is a single item</h1>;
+  return (
+    <>
+      <Container maxWidth="lg" sx={{ display: "flex" }} className="Item">
+        <Box>
+          {singleItem?.img ? (
+            <img
+              src={"https://i.imgur.com/s4t97Ec.jpg"}
+              alt={"no image for item provided"}
+            />
+          ) : (
+            <img src={singleItem?.image} alt={singleItem?.name} />
+          )}
+        </Box>
+        <Box>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="p">
+              {singleItem?.name}
+            </Typography>
+            <Typography gutterBottom color="text.secondary">
+              From our "{singleItem?.categories[0].name}" section.
+            </Typography>
+            <Typography color="text.primary" sx={{ fontSize: 18 }} gutterBottom>
+              {singleItem?.description}
+            </Typography>
+          </CardContent>
+          <CardActions>
+            {isOwn ? (
+              <>
+                <Typography gutterBottom variant="h7" component="p">
+                  You own this item.
+                </Typography>
+                <Button value={"owner"} onClick={navTo}>
+                  EDIT ITEM
+                </Button>
+              </>
+            ) : (
+              <Button onClick={navTo}>VIEW OWNER</Button>
+            )}
+          </CardActions>
+        </Box>
+      </Container>
+    </>
+  );
 };
 
 export default Item;

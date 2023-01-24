@@ -48,15 +48,15 @@ export default function SignUp() {
     email: "",
     password: "",
     password_confirmation: "",
-    profile_image: "https://i.imgur.com/CzmAXlp.jpg",
+    // profile_image: "https://i.imgur.com/CzmAXlp.jpg",
   });
 
-  // const [file, setFile] = useState("");
+  const [file, setFile] = useState("");
   const [error, setError] = useState(false);
   const handleChange = (e) =>
     setFormFields({ ...formFields, [e.target.name]: e.target.value });
 
-  // const handleFileChange = (e) => setFile(e.target.files[0]);
+  const handleFileChange = (e) => setFile(e.target.files[0]);
 
   // !!this is old submit
   // const handleSubmit = (event) => {
@@ -70,27 +70,32 @@ export default function SignUp() {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
-    // const imageData = new FormData();
-    // imageData.append("file", file);
-    // imageData.append(
-    //   "upload_preset",
-    //   process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
-    // );
-
-    // try {
-    //   const cloudinaryResponse = await API.POST(
-    //     API.ENDPOINTS.cloudinary,
-    //     imageData
-    //   );
-
-    //   const apiReqBody = {
-    //     ...formFields,
-    //     cloudinaryImageId: cloudinaryResponse.data.public_id,
-    //   };
+    console.log("creating user");
+    const imageData = new FormData();
+    imageData.append("file", file);
+    imageData.append(
+      "upload_preset",
+      process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
+    );
 
     try {
-      await API.POST(API.ENDPOINTS.register, formFields);
-      // await API.POST(API.ENDPOINTS.register, apiReqBody);
+      console.log("trying");
+      const cloudinaryResponse = await API.POST(
+        API.ENDPOINTS.cloudinary,
+        imageData
+      );
+
+      const jsonCloudinaryResponse = await cloudinaryResponse.json();
+
+      console.log("this is from cloudinary", jsonCloudinaryResponse);
+
+      const apiReqBody = {
+        ...formFields,
+        cloudinaryImageId: jsonCloudinaryResponse.data.public_id,
+      };
+
+      // await API.POST(API.ENDPOINTS.register, formFields);
+      await API.POST(API.ENDPOINTS.register, apiReqBody);
 
       const loginData = await API.POST(API.ENDPOINTS.login, {
         email: formFields.email,
@@ -169,6 +174,16 @@ export default function SignUp() {
                   value={formFields.username}
                   onChange={handleChange}
                   error={error}
+                />
+              </Grid>
+              <Grid>
+                <TextField
+                  size="small"
+                  name="profile-picture"
+                  id="profile-picture"
+                  type="file"
+                  onChange={handleFileChange}
+                  sx={{ mb: 2 }}
                 />
               </Grid>
               <Grid item xs={12}>

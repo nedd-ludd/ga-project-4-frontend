@@ -1,30 +1,20 @@
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
+import { useEffect, useState } from "react";
+import { API } from "../../lib/api";
 
-const options = [
-  { value: "All", label: "All" },
-  { value: "Home", label: "Home" },
-  { value: "Clothes", label: "Clothes" },
-  { value: "Electronics", label: "Electronics" },
-  { value: "Sports", label: "Sports" },
-  { value: "Hobbies", label: "Hobbies" },
-  { value: "Entertainment", label: "Entertainment" },
-  { value: "Leisure", label: "Leisure" },
-  { value: "Games", label: "Games" },
-  { value: "Business", label: "Business" },
-  { value: "Office", label: "Office" },
-  { value: "Transport", label: "Transport" },
-  { value: "Garden", label: "Garden" },
-  { value: "Tools", label: "Tools" },
-  { value: "Gym", label: "Gym" },
-  { value: "Beauty", label: "Beauty" },
-  { value: "Music", label: "Music" },
-  { value: "Media", label: "Media" },
-  { value: "Misc", label: "Misc" },
-];
+export default function SelectCatagory({ setCategory }) {
+  const [availableCategories, setAvailableCategories] = useState([]);
 
-export default function SelectCatagory() {
+  useEffect(() => {
+    API.GET(API.ENDPOINTS.allCategories)
+      .then(({ data }) => {
+        setAvailableCategories(data);
+      })
+      .catch((e) => console.log(e));
+  }, []);
+
   return (
     <Box
       component="form"
@@ -38,14 +28,17 @@ export default function SelectCatagory() {
         <TextField
           id="select-category"
           select
-          // label="Select"
-          defaultValue="EUR"
+          label="Category"
+          defaultValue=""
           placeholder="Category"
-          // helperText="Please select your currency"
+          onChange={(e) => {
+            setCategory(e.target.value);
+          }}
         >
-          {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
+          <MenuItem value={null}>All</MenuItem>
+          {availableCategories.map((option) => (
+            <MenuItem key={option.id} value={option.id}>
+              {option.name}
             </MenuItem>
           ))}
         </TextField>

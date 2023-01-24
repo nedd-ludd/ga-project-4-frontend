@@ -14,7 +14,7 @@ const getPayload = () => {
   const token = getToken();
 
   if (!token) {
-    return false; 
+    return false;
   }
   const parts = token.split(".");
   if (parts.length < 3) {
@@ -23,7 +23,7 @@ const getPayload = () => {
   return JSON.parse(Buffer.from(parts[1], "base64"));
 };
 
-const isOwner = (objectId) => objectId === getPayload().userId;
+const isOwner = (objectId) => objectId === getPayload().sub;
 
 export const AUTH = {
   setToken,
