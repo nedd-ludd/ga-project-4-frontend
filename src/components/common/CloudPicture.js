@@ -10,26 +10,42 @@ import { byRadius } from "@cloudinary/url-gen/actions/roundCorners";
 import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
 import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
 
-export default function ProfilePicture({ cloudinaryImageId }) {
-  // Create and configure your Cloudinary instance.
+const Profile = ({ cloudinaryImageId }) => {
   const cld = new Cloudinary({
     cloud: {
       cloudName: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
     },
   });
 
-  // Use the image with public ID, 'front_face'.
   const myImage = cld.image(cloudinaryImageId);
-
-  // Apply the transformation.
   myImage
-    .resize(thumbnail().width(70).height(70).gravity(focusOn(FocusOn.face()))) // Crop the image, focusing on the face.
-    .roundCorners(byRadius(35)); // Round the corners.
+    .resize(thumbnail().width(70).height(70).gravity(focusOn(FocusOn.face())))
+    .roundCorners(byRadius(35));
 
-  // Render the transformed image in a React component.
   return (
     <div>
       <AdvancedImage cldImg={myImage} />
     </div>
   );
-}
+};
+
+const Item = ({ cloudinaryImageId }) => {
+  const cld = new Cloudinary({
+    cloud: {
+      cloudName: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
+    },
+  });
+
+  const myImage = cld
+    .image(cloudinaryImageId)
+    .resize(thumbnail().width(130).height(130))
+    .roundCorners(byRadius(5));
+
+  return (
+    <div>
+      <AdvancedImage cldImg={myImage} />
+    </div>
+  );
+};
+
+export const CLOUD = { Profile, Item };

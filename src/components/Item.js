@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { API } from "../lib/api";
 import { AUTH } from "../lib/auth";
 import "../styles/item.scss";
@@ -37,22 +37,19 @@ const Item = () => {
     API.GET(API.ENDPOINTS.singleItem(id))
       .then(({ data }) => {
         setSingleItem(data);
-        setIsOwn(data.owner == AUTH.getPayload().sub);
+        setIsOwn(data.owner === AUTH.getPayload().sub);
       })
       .catch(({ message, response }) => {
         console.error(message, response);
       });
-  }, []);
+  }, [id]);
 
   return (
     <>
       <Container maxWidth="lg" sx={{ display: "flex" }} className="Item">
         <Box>
           {singleItem?.img ? (
-            <img
-              src={"https://i.imgur.com/s4t97Ec.jpg"}
-              alt={"no image for item provided"}
-            />
+            <img src={"https://i.imgur.com/s4t97Ec.jpg"} alt={"item"} />
           ) : (
             <img src={singleItem?.image} alt={singleItem?.name} />
           )}

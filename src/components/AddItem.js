@@ -9,10 +9,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
-
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 
 import { API } from "../lib/api";
 import { NOTIFY } from "../lib/notifications";
@@ -36,6 +35,9 @@ export default function ListItems() {
     button1: "CLEAR FORM",
     button2: "ADD MY ITEM",
   });
+  const [file, setFile] = useState("");
+
+  const handleFileChange = (e) => setFile(e.target.files[0]);
 
   useEffect(() => {
     API.GET(API.ENDPOINTS.allCategories)
@@ -72,33 +74,52 @@ export default function ListItems() {
     setFormData(formBaseData);
   };
 
+  const handleChecked = (e) => {
+    setFormData({ ...formData, [e.target.name]: !formData.available });
+  };
+
   const handleChange = (e) => {
+    console.log(e.target.name);
     if (e.target.name === "categories") {
       const cats = [];
       cats.push(e.target.value);
       setFormData({ ...formData, [e.target.name]: cats });
-    } else if ((e.target.name = "available")) {
-      setFormData({ ...formData, [e.target.name]: e.target.checked });
     } else {
+      console.log("here");
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
     console.log(formData);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
     if (!editMode) {
-      API.POST(API.ENDPOINTS.allItems, formData, API.getHeaders())
-        .then(({ data }) => {
-          NOTIFY.SUCCESS(`Added ${data.name}`);
-          navigate(`/items`);
-        })
-        .catch((e) => {
-          if (e.status === 301) {
-            setError(true);
-          }
-          console.log(e);
-        });
+      e.preventDefault();
+
+      const imageData = new FormData();
+      imageData.append("file", file);
+      imageData.append(
+        "upload_preset",
+        process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
+      );
+      try {
+        const cloudinaryResponse = await API.POST(
+          API.ENDPOINTS.cloudinary,
+          imageData
+        );
+
+        const apiReqBody = {
+          ...formData,
+          image: cloudinaryResponse.data.public_id,
+        };
+
+        API.POST(API.ENDPOINTS.allItems, apiReqBody, API.getHeaders());
+
+        NOTIFY.SUCCESS(`Added item`);
+        navigate(`/items`);
+      } catch (e) {
+        console.log(e);
+        setError(true);
+      }
     } else {
       console.log(formData);
       API.PUT(API.ENDPOINTS.singleItem(id), formData, API.getHeaders())
@@ -148,11 +169,11 @@ export default function ListItems() {
           <FormControl fullWidth>
             <TextField
               size="small"
-              type="text"
-              value={formData.image}
-              onChange={handleChange}
+              type="file"
+              onChange={handleFileChange}
               error={error}
-              label="Image"
+              placeholder="upload image"
+              // label="Image"
               name="image"
             />
           </FormControl>
@@ -180,11 +201,12 @@ export default function ListItems() {
         <Box>
           <FormControlLabel
             disabled={!editMode}
-            control={<Checkbox defaultChecked />}
+            control={<Checkbox />}
             label="Available"
-            value={formData.available}
+            id="available"
+            checked={formData.available}
             name="available"
-            onChange={handleChange}
+            onChange={handleChecked}
           />
         </Box>
 

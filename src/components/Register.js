@@ -2,8 +2,8 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
+// import FormControlLabel from "@mui/material/FormControlLabel";
+// import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -29,7 +29,7 @@ function Copyright(props) {
     >
       {"Copyright © "}
       <Link color="inherit" href="https://mui.com/">
-        Your Website
+        OURS
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -48,7 +48,7 @@ export default function SignUp() {
     email: "",
     password: "",
     password_confirmation: "",
-    // profile_image: "https://i.imgur.com/CzmAXlp.jpg",
+    items: [],
   });
 
   const [file, setFile] = useState("");
@@ -58,19 +58,9 @@ export default function SignUp() {
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
-  // !!this is old submit
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get("email"),
-  //     password: data.get("password"),
-  //   });
-  // };
-
   const handleCreateUser = async (e) => {
     e.preventDefault();
-    console.log("creating user");
+
     const imageData = new FormData();
     imageData.append("file", file);
     imageData.append(
@@ -79,22 +69,16 @@ export default function SignUp() {
     );
 
     try {
-      console.log("trying");
       const cloudinaryResponse = await API.POST(
         API.ENDPOINTS.cloudinary,
         imageData
       );
 
-      const jsonCloudinaryResponse = await cloudinaryResponse.json();
-
-      console.log("this is from cloudinary", jsonCloudinaryResponse);
-
       const apiReqBody = {
         ...formFields,
-        cloudinaryImageId: jsonCloudinaryResponse.data.public_id,
+        profile_image: cloudinaryResponse.data.public_id,
       };
 
-      // await API.POST(API.ENDPOINTS.register, formFields);
       await API.POST(API.ENDPOINTS.register, apiReqBody);
 
       const loginData = await API.POST(API.ENDPOINTS.login, {
@@ -103,7 +87,7 @@ export default function SignUp() {
       });
 
       AUTH.setToken(loginData.data.token);
-      NOTIFY.SUCCESS(loginData.data.message);
+      NOTIFY.SUCCESS("Welcome to OUR site.");
       navigate("/ours");
     } catch (e) {
       console.log(e);
@@ -176,8 +160,10 @@ export default function SignUp() {
                   error={error}
                 />
               </Grid>
-              <Grid>
+              <Grid item xs={12}>
                 <TextField
+                  fullWidth
+                  // required
                   size="small"
                   name="profile-picture"
                   id="profile-picture"
@@ -227,14 +213,14 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <FormControlLabel
                   control={
                     <Checkbox value="allowExtraEmails" color="primary" />
                   }
                   label="I want to receive inspiration, marketing promotions and updates via email."
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
             <Button
               type="submit"
@@ -246,7 +232,7 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>

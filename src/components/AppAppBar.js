@@ -12,10 +12,11 @@ import MenuItem from "@mui/material/MenuItem";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import AdbIcon from "@mui/icons-material/Adb";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthenticated } from "../hooks/useAuthenticated";
 import { AUTH } from "../lib/auth";
+import { API } from "../lib/api";
 
 // const pages = ["FRIENDS", "FIND ITEMS", "LIST ITEMS"];
 const pages = {
@@ -31,6 +32,9 @@ function AppAppBar() {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const [profileImg, setProfileImg] = useState(
+    "https://i.imgur.com/CzmAXlp.jpg"
+  );
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -72,6 +76,20 @@ function AppAppBar() {
     setIsLoggedIn(false);
     navigate("/");
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const uId = AUTH.getPayload().sub;
+      API.GET(API.ENDPOINTS.singlePerson(uId))
+        .then(({ data }) => {
+          setProfileImg(data.profile_image);
+          console.log(data.profile_image);
+        })
+        .catch(({ message, response }) => {
+          console.error(message, response);
+        });
+    }
+  }, [isLoggedIn]);
 
   return (
     <AppBar position="static">
@@ -195,7 +213,7 @@ function AppAppBar() {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt="User Profile Img" src={profileImg} />
                 </IconButton>
               </Tooltip>
 

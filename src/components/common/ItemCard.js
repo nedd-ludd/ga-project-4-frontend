@@ -5,6 +5,8 @@ import Typography from "@mui/material/Typography";
 import ButtonBase from "@mui/material/ButtonBase";
 import { useNavigate } from "react-router-dom";
 
+import { CLOUD } from "./CloudPicture";
+
 const Img = styled("img")({
   margin: "auto",
   display: "block",
@@ -24,7 +26,7 @@ export default function ItemCard({
   const navigateToItem = (id) => navigate(`/items/${id}`);
   const navigateToPerson = (id) => navigate(`/people/${id}`);
   const nav = indexType === "people" ? navigateToPerson : navigateToItem;
-  console.log(available);
+
   return (
     <Paper
       sx={{
@@ -44,7 +46,12 @@ export default function ItemCard({
           }}
         >
           <ButtonBase sx={{ width: 128, height: 128 }}>
-            <Img alt={name} src={image} />
+            {indexType === "people" ? (
+              <CLOUD.Profile cloudinaryImageId={image} />
+            ) : (
+              <CLOUD.Item3 cloudinaryImageId={image} />
+            )}
+            {/* <Img alt={name} src={image} /> */}
           </ButtonBase>
         </Grid>
         <Grid item xs={12} sm container>
